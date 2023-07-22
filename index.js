@@ -29,8 +29,8 @@ module.exports = async (req, res) => {
   //
   try {
     const [issuance, treasury, properties, block] = await Promise.all([
-      api.query.balances.totalIssuance(),
-      api.derive.balances.account(TREASURY_ACCOUNT),
+      api.query.balances?.totalIssuance(),
+      api.derive.balances?.account(TREASURY_ACCOUNT),
       api.rpc.system.properties(),
     ]);
     const tokenDecimals = properties.tokenDecimals.unwrap().toString(10);
