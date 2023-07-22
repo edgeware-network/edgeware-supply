@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-const { ApiPromise, WsProvider } = require('@polkadot/api');
-const { BN, BN_ZERO, u8aConcat } = require('@polkadot/util');
-const { u128 } = require('@polkadot/types');
+import { ApiPromise, WsProvider } from '@polkadot/api';
+import type { BN } from '@polkadot/util';
+import { BN_ZERO, u8aConcat } from '@polkadot/util';
+import { u128 } from '@polkadot/types';
 
 module.exports = async (req, res) => {
   const nodeUrl = 'wss://edgeware.jelliedowl.net';
