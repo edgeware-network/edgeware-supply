@@ -7,7 +7,7 @@ const { u128 } = require('@polkadot/types');
 const { Mainnet } = require('@edgeware/node-types');
 
 module.exports = async (req, res) => {
-  const nodeUrl = 'ws://mainnet1.edgewa.re:9944';
+  const nodeUrl = 'wss://edgeware.jelliedowl.net:9944';
 
   console.log(`Connecting to API for ${nodeUrl}...`);
   let connected;
