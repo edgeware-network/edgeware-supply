@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
-const { ToBn } = require('@polkadot/util/bn');
+import { bnToBn } from '@polkadot/util';
 import { u128 } from '@polkadot/types';
 
 module.exports = async (req, res) => {
@@ -33,9 +33,9 @@ module.exports = async (req, res) => {
       api.rpc.system.properties(),
     ]);
     const tokenDecimals = properties.tokenDecimals.unwrap().toString(10);
-    const issuanceStr = issuance.div(ToBn(10).pow(ToBn(tokenDecimals))).toString(10);
-    const treasuryStr = treasury.freeBalance.div(ToBn(10).pow(ToBn(tokenDecimals))).toString(10);
-    const circulatingStr = issuance.sub(treasury.freeBalance).div(ToBn(10).pow(ToBn(tokenDecimals))).toString(10);
+    const issuanceStr = issuance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
+    const treasuryStr = treasury.freeBalance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
+    const circulatingStr = issuance.sub(treasury.freeBalance).div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
     res.setHeader('content-type', 'text/plain');
 
     if (!!req.query.circulating) {
