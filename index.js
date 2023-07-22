@@ -4,7 +4,6 @@ const { ApiPromise, WsProvider } = require('@polkadot/api');
 const { bnToBn } = require('@polkadot/util/bn');
 const { stringToU8a } = require('@polkadot/util');
 const { u128 } = require('@polkadot/types');
-const { Mainnet } = require('@edgeware/node-types');
 
 module.exports = async (req, res) => {
   const nodeUrl = 'ws://edgeware.jelliedowl.net:9944';
@@ -21,7 +20,6 @@ module.exports = async (req, res) => {
   // initialize the api
   const api = await ApiPromise.create({
     provider: new WsProvider(nodeUrl),
-    ...Mainnet,
   });
   connected = true;
 
