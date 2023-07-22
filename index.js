@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 const { ApiPromise, WsProvider } = require('@polkadot/api');
-const { bnToBn } = require('@polkadot/util/bn');
-const { stringToU8a } = require('@polkadot/util');
+const { ToBn } = require('@polkadot/util/bn');
+const { ToU8a } = require('@polkadot/util/string');
 const { u128 } = require('@polkadot/types');
 
 module.exports = async (req, res) => {
@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
   });
   connected = true;
 
-  const TREASURY_ACCOUNT = stringToU8a('modlpy/trsry'.padEnd(32, '\0'));
+  const TREASURY_ACCOUNT = ToU8a('modlpy/trsry'.padEnd(32, '\0'));
   //
   // get relevant chain data
   //
@@ -34,9 +34,9 @@ module.exports = async (req, res) => {
       api.rpc.system.properties(),
     ]);
     const tokenDecimals = properties.tokenDecimals.unwrap().toString(10);
-    const issuanceStr = issuance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
-    const treasuryStr = treasury.freeBalance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
-    const circulatingStr = issuance.sub(treasury.freeBalance).div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
+    const issuanceStr = issuance.div(ToBn(10).pow(ToBn(tokenDecimals))).toString(10);
+    const treasuryStr = treasury.freeBalance.div(ToBn(10).pow(ToBn(tokenDecimals))).toString(10);
+    const circulatingStr = issuance.sub(treasury.freeBalance).div(ToBn(10).pow(ToBn(tokenDecimals))).toString(10);
     res.setHeader('content-type', 'text/plain');
 
     if (!!req.query.circulating) {
