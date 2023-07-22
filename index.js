@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import { bnToBn } from '@polkadot/util';
+import { bnToBn, stringToU8a } from '@polkadot/util';
 import { u128 } from '@polkadot/types';
 
 module.exports = async (req, res) => {
@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
   });
   connected = true;
 
-  const TREASURY_ACCOUNT = 'jz77v8cHXwEWbPnbfQScXnU9Qy5VkHnDLfpDsuDYUZ7ELae';
+  const TREASURY_ACCOUNT = stringToU8a('modlpy/trsry'.padEnd(32, '\0'));
   //
   // get relevant chain data
   //
