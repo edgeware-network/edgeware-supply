@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import type { BN } from '@polkadot/util';
-import { BN_ZERO } from '@polkadot/util';
+const { ToBn } = require('@polkadot/util/bn');
 import { u128 } from '@polkadot/types';
 
 module.exports = async (req, res) => {
@@ -23,7 +22,7 @@ module.exports = async (req, res) => {
   });
   connected = true;
 
-  const TREASURY_ACCOUNT = "jz77v8cHXwEWbPnbfQScXnU9Qy5VkHnDLfpDsuDYUZ7ELae";
+  const TREASURY_ACCOUNT = 'jz77v8cHXwEWbPnbfQScXnU9Qy5VkHnDLfpDsuDYUZ7ELae';
   //
   // get relevant chain data
   //
