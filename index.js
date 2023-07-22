@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 const { ApiPromise, WsProvider } = require('@polkadot/api');
-const { ToBn } = require('@polkadot/util/bn');
-const { u8aConcat } = require('@polkadot/util');
+const { BN, BN_ZERO, u8aConcat } = require('@polkadot/util');
 const { u128 } = require('@polkadot/types');
 
 module.exports = async (req, res) => {
