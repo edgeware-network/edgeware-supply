@@ -6,7 +6,7 @@ const { ToU8a } = require('@polkadot/util/string');
 const { u128 } = require('@polkadot/types');
 
 module.exports = async (req, res) => {
-  const nodeUrl = 'ws://edgeware.jelliedowl.net:9944';
+  const nodeUrl = 'wss://edgeware.jelliedowl.net';
 
   console.log(`Connecting to API for ${nodeUrl}...`);
   let connected;
