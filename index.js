@@ -2,7 +2,7 @@
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { BN } from '@polkadot/util';
-import { BN_ZERO, u8aConcat } from '@polkadot/util';
+import { BN_ZERO } from '@polkadot/util';
 import { u128 } from '@polkadot/types';
 
 module.exports = async (req, res) => {
@@ -23,13 +23,7 @@ module.exports = async (req, res) => {
   });
   connected = true;
 
-  const TREASURY_ACCOUNT = u8aConcat(
-    'modl',
-    api.consts.treasury && api.consts.treasury.palletId
-      ? api.consts.treasury.palletId.toU8a(true)
-      : 'py/trsry',
-    EMPTY_U8A_32
-  ).subarray(0, 32);
+  const TREASURY_ACCOUNT = "jz77v8cHXwEWbPnbfQScXnU9Qy5VkHnDLfpDsuDYUZ7ELae";
   //
   // get relevant chain data
   //
