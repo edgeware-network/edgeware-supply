@@ -2,7 +2,7 @@
 
 const { ApiPromise, WsProvider } = require('@polkadot/api');
 const { ToBn } = require('@polkadot/util/bn');
-const { ToU8a } = require('@polkadot/util/string');
+const { u8aConcat } = require('@polkadot/util');
 const { u128 } = require('@polkadot/types');
 
 module.exports = async (req, res) => {
@@ -23,7 +23,13 @@ module.exports = async (req, res) => {
   });
   connected = true;
 
-  const TREASURY_ACCOUNT = ToU8a('modlpy/trsry'.padEnd(32, '\0'));
+  const TREASURY_ACCOUNT = u8aConcat(
+    'modl',
+    api.consts.treasury && api.consts.treasury.palletId
+      ? api.consts.treasury.palletId.toU8a(true)
+      : 'py/trsry',
+    EMPTY_U8A_32
+  ).subarray(0, 32);
   //
   // get relevant chain data
   //
