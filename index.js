@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
       api.derive.balances?.account(TREASURY_ACCOUNT),
       api.rpc.system.properties(),
     ]);
-    const tokenDecimals = properties.tokenDecimals.unwrap().toString(10);
+    const tokenDecimals = properties.tokenDecimals.unwrap();
     const issuanceStr = issuance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
     const treasuryStr = treasury.freeBalance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
     const circulatingStr = issuance.sub(treasury.freeBalance).div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
