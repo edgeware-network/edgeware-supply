@@ -23,12 +23,12 @@ module.exports = async (req, res) => {
   connected = true;
 
   const TREASURY_ACCOUNT = stringToU8a('modlpy/trsry'.padEnd(32, '\0'));
+  const current_era = await api.query.staking?.currentEra();
+  const eraNumber = current_era[0].toNumber();
   //
   // get relevant chain data
   //
   try {
-    const current_era = await api.query.staking?.currentEra();
-    const eraNumber = current_era[0].toNumber();
     const [issuance, staked_issuance, treasury, properties, block] = await Promise.all([
       api.query.balances?.totalIssuance(),
       api.query.staking?.erasTotalStake(eraNumber),
