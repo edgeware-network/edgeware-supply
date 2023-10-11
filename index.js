@@ -23,19 +23,20 @@ module.exports = async (req, res) => {
   connected = true;
 
   const TREASURY_ACCOUNT = stringToU8a('modlpy/trsry'.padEnd(32, '\0'));
-  const current_era = await api.query.staking?.currentEra();
-  const eraNumber = current_era[0].toNumber();
   //
   // get relevant chain data
   //
   try {
-    const [issuance, staked_issuance, treasury, properties, block] = await Promise.all([
+    const [issuance, current_era, treasury, properties, block] = await Promise.all([
       api.query.balances?.totalIssuance(),
-      api.query.staking?.erasTotalStake(eraNumber),
+      api.query.staking?.currentEra(),
       api.derive.balances?.account(TREASURY_ACCOUNT),
       api.rpc.system.properties(),
     ]);
     
+    const eraNumber = current_era[0].toNumber();
+    const staked_issuance = await api.query.staking?.erasTotalStake(eraNumber);
+
     const tokenDecimals = properties.tokenDecimals.unwrap();
     const issuanceStr = issuance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
     const stakedStr = staked_issuance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
