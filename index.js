@@ -27,26 +27,14 @@ module.exports = async (req, res) => {
   // get relevant chain data
   //
   try {
-    const [issuance, staked_raw, current_era, treasury, properties, block] = await Promise.all([
+    const current_era = await Promise.all([api.query.staking?.currentEra(),]);
+    const eraNumber = current_era[0].toNumber();
+    const [issuance, staked, treasury, properties, block] = await Promise.all([
       api.query.balances?.totalIssuance(),
-      api.query.staking?.erasTotalStake(),
-      api.query.staking?.currentEra(),
+      api.query.staking?.erasTotalStake(eraNumber),
       api.derive.balances?.account(TREASURY_ACCOUNT),
       api.rpc.system.properties(),
     ]);
-    
-    function getStakedAmountForCurrentEra(eraData, current_era) {
-      for (const eraInfo of eraData) {
-        const eraNumber = eraInfo[0][0];
-        if (eraNumber === current_era) {
-          const staked = eraInfo[1];
-          return staked;
-        }
-      }
-      return null; // Era not found in the data
-    }
-
-    const staked = getStakedAmountForCurrentEra(staked_raw, current_era);
     
     const tokenDecimals = properties.tokenDecimals.unwrap();
     const issuanceStr = issuance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
