@@ -42,6 +42,11 @@ module.exports = async (req, res) => {
       res.status(200).send(circulatingStr);
     } else if (!!req.query.treasury) {
       res.status(200).send(treasuryStr);
+    } else if (!!req.query.all) {
+      res.status(200).send(JSON.stringify({
+        'total_supply': issuanceStr,
+        'circulating_supply': circulatingStr,
+        'treasury_supply': treasuryStr,}));
     } else {
       res.status(200).send(issuanceStr);
     }
