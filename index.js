@@ -27,21 +27,26 @@ module.exports = async (req, res) => {
   // get relevant chain data
   //
   try {
-    const [issuance, treasury, properties, block] = await Promise.all([
+    const [issuance, treasury, properties, block, staked] = await Promise.all([
       api.query.balances?.totalIssuance(),
       api.derive.balances?.account(TREASURY_ACCOUNT),
       api.rpc.system.properties(),
+      undefined, // We don't need the block, but we need to keep the positions consistent
+      api.derive.staking.staked(), // Get the total staked amount
     ]);
     const tokenDecimals = properties.tokenDecimals.unwrap();
     const issuanceStr = issuance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
     const treasuryStr = treasury.freeBalance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
-    const circulatingStr = issuance.sub(treasury.freeBalance).div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
+    const stakedStr = staked.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
+    const circulatingStr = issuance.sub(treasury.freeBalance).sub(staked).div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
     res.setHeader('content-type', 'text/plain');
 
     if (!!req.query.circulating) {
       res.status(200).send(circulatingStr);
     } else if (!!req.query.treasury) {
       res.status(200).send(treasuryStr);
+    } else if (!!req.query.staked) {
+      res.status(200).send(stakedStr);
     } else {
       res.status(200).send(issuanceStr);
     }
