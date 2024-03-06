@@ -3,6 +3,7 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { bnToBn, stringToU8a } from '@polkadot/util';
 import { U128 } from '@polkadot/types';
+import { derive as derivePolkadot } from '@polkadot/api-derive';
 
 module.exports = async (req, res) => {
   const nodeUrl = 'wss://edgeware.jelliedowl.net';
@@ -33,9 +34,10 @@ module.exports = async (req, res) => {
       api.rpc.system.properties(),
     ]);
 
-    const tokenDecimals = properties.tokenDecimals.unwrapOr(18); // Use the default value of 18 if tokenDecimals is not available
+    const tokenDecimals = properties.tokenDecimals.unwrapOr(12);
     const treasury = await api.derive.balances.account(TREASURY_ACCOUNT);
-    const stakers = await api.derive.staking.stakers();
+    const derive = await derivePolkadot(api);
+    const stakers = await derive.staking.stakers();
 
     const issuanceStr = issuance.div(new U128(bnToBn(10).pow(bnToBn(tokenDecimals)))).toString();
     const stakedStr = stakers.total.div(new U128(bnToBn(10).pow(bnToBn(tokenDecimals)))).toString();

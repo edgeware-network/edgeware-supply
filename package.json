@@ -11,6 +11,7 @@
   "keywords": [],
   "dependencies": {
     "@polkadot/api": "^10.11.3",
+    "@polkadot/api-derive": "^10.12.1",
     "@polkadot/types": "^10.11.3",
     "@polkadot/util": "^12.6.2",
     "@vercel/build-utils": "^7.7.0",
