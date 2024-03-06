@@ -32,8 +32,8 @@ module.exports = async (req, res) => {
       api.query.balances?.totalIssuance(),
       api.derive.balances?.account(TREASURY_ACCOUNT),
       api.rpc.system.properties(),
-      api.derive.staking.electedInfo({ ...DEFAULT_FLAGS_ELECTED, withLedger: true }),
-      api.derive.staking.waitingInfo({ ...DEFAULT_FLAGS_WAITING, withLedger: true }),
+      api.derive.staking.electedInfo({ withController: true, withExposure: true, withPrefs: true, withLedger: true }),
+      api.derive.staking.waitingInfo({ withController: true, withPrefs: true, withLedger: true }),
     ]);
 
     const tokenDecimals = properties.tokenDecimals.unwrap();
