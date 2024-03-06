@@ -28,20 +28,15 @@ module.exports = async (req, res) => {
   // get relevant chain data
   //
   try {
-    const [issuance, treasury, properties, electedInfo, waitingInfo] = await Promise.all([
+    const [issuance, treasury, properties, totalStaked, previousEra] = await Promise.all([
       api.query.balances?.totalIssuance(),
       api.derive.balances?.account(TREASURY_ACCOUNT),
       api.rpc.system.properties(),
-      api.derive.staking.electedInfo({ withController: true, withExposure: true, withPrefs: true, withLedger: true }),
-      api.derive.staking.waitingInfo({ withController: true, withPrefs: true, withLedger: true }),
+      api.query.staking.erasTotalStake(previousEra.toString()),
+      api.derive.session.progress(),
     ]);
 
     const tokenDecimals = properties.tokenDecimals.unwrap();
-
-    // Calculate total staked amount
-    const elected = electedInfo.info.filter(({ isActive }) => isActive);
-    const activeTotals = elected.map(({ bondTotal }) => bondTotal).sort((a, b) => a.cmp(b));
-    const totalStaked = activeTotals.reduce((total, value) => total.iadd(value), new BN(0));
 
     const issuanceStr = issuance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
     const treasuryStr = treasury.freeBalance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
