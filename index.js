@@ -27,20 +27,20 @@ module.exports = async (req, res) => {
   // get relevant chain data
   //
   try {
-    const [issuance, era, staking, properties, block] = await Promise.all([
+    const [issuance, era, properties, block] = await Promise.all([
       api.query.balances?.totalIssuance(),
       api.query.staking?.currentEra(),
-      api.query.staking?.erasTotalStake(), // No argument needed
       api.rpc.system.properties(),
     ]);
 
     const tokenDecimals = properties.tokenDecimals.unwrap();
     const treasury = await api.derive.balances.account(TREASURY_ACCOUNT);
+    const stakers = await api.derive.staking.stakers();
 
     const issuanceStr = issuance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
-    const stakedStr = staking.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
+    const stakedStr = stakers.total.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
     const treasuryStr = treasury.freeBalance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
-    const circulatingStr = issuance.sub(treasury.freeBalance).sub(staking).div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
+    const circulatingStr = issuance.sub(treasury.freeBalance).sub(stakers.total).div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
     res.setHeader('content-type', 'text/plain');
 
     if (!!req.query.circulating) {
