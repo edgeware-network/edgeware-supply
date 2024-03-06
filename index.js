@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
       api.rpc.system.properties(),
     ]);
 
-    const tokenDecimals = properties.tokenDecimals.toNumber();
+    const tokenDecimals = properties.tokenDecimals.unwrapOr(18); // Use the default value of 18 if tokenDecimals is not available
     const treasury = await api.derive.balances.account(TREASURY_ACCOUNT);
     const stakers = await api.derive.staking.stakers();
 
