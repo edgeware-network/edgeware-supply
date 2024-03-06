@@ -19,6 +19,7 @@ module.exports = async (req, res) => {
   // initialize the api
   const api = await ApiPromise.create({
     provider: new WsProvider(nodeUrl),
+    throwOnUnknownDecorators: false, // This will suppress the warning
   });
   connected = true;
 
@@ -27,18 +28,25 @@ module.exports = async (req, res) => {
   // get relevant chain data
   //
   try {
-    const [issuance, treasury, properties, block, staked] = await Promise.all([
+    const [issuance, treasury, properties, electedInfo, waitingInfo] = await Promise.all([
       api.query.balances?.totalIssuance(),
       api.derive.balances?.account(TREASURY_ACCOUNT),
       api.rpc.system.properties(),
-      undefined, // We don't need the block, but we need to keep the positions consistent
-      api.derive.staking.staked(), // Get the total staked amount
+      api.derive.staking.electedInfo({ ...DEFAULT_FLAGS_ELECTED, withLedger: true }),
+      api.derive.staking.waitingInfo({ ...DEFAULT_FLAGS_WAITING, withLedger: true }),
     ]);
+
     const tokenDecimals = properties.tokenDecimals.unwrap();
+
+    // Calculate total staked amount
+    const elected = electedInfo.info.filter(({ isActive }) => isActive);
+    const activeTotals = elected.map(({ bondTotal }) => bondTotal).sort((a, b) => a.cmp(b));
+    const totalStaked = activeTotals.reduce((total, value) => total.iadd(value), new BN(0));
+
     const issuanceStr = issuance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
     const treasuryStr = treasury.freeBalance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
-    const stakedStr = staked.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
-    const circulatingStr = issuance.sub(treasury.freeBalance).sub(staked).div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
+    const stakedStr = totalStaked.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
+    const circulatingStr = issuance.sub(treasury.freeBalance).sub(totalStaked).div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
     res.setHeader('content-type', 'text/plain');
 
     if (!!req.query.circulating) {
