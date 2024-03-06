@@ -3,7 +3,7 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { bnToBn, stringToU8a } from '@polkadot/util';
 import { U128 } from '@polkadot/types';
-import derive from '@polkadot/api-derive';
+import { derive } from '@polkadot/api-derive';
 
 module.exports = async (req, res) => {
   const nodeUrl = 'wss://edgeware.jelliedowl.net';
