@@ -2,7 +2,7 @@
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { bnToBn, stringToU8a } from '@polkadot/util';
-import { u128 } from '@polkadot/types';
+import { U128 } from '@polkadot/types';
 
 module.exports = async (req, res) => {
   const nodeUrl = 'wss://edgeware.jelliedowl.net';
@@ -28,19 +28,19 @@ module.exports = async (req, res) => {
   //
   try {
     const [issuance, era, properties, block] = await Promise.all([
-      api.query.balances?.totalIssuance(),
-      api.query.staking?.currentEra(),
+      api.query.balances.totalIssuance(),
+      api.query.staking.currentEra(),
       api.rpc.system.properties(),
     ]);
 
-    const tokenDecimals = properties.tokenDecimals.unwrap();
+    const tokenDecimals = properties.tokenDecimals.toNumber();
     const treasury = await api.derive.balances.account(TREASURY_ACCOUNT);
     const stakers = await api.derive.staking.stakers();
 
-    const issuanceStr = issuance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
-    const stakedStr = stakers.total.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
-    const treasuryStr = treasury.freeBalance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
-    const circulatingStr = issuance.sub(treasury.freeBalance).sub(stakers.total).div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
+    const issuanceStr = issuance.div(new U128(bnToBn(10).pow(bnToBn(tokenDecimals)))).toString();
+    const stakedStr = stakers.total.div(new U128(bnToBn(10).pow(bnToBn(tokenDecimals)))).toString();
+    const treasuryStr = treasury.freeBalance.div(new U128(bnToBn(10).pow(bnToBn(tokenDecimals)))).toString();
+    const circulatingStr = issuance.sub(treasury.freeBalance).sub(stakers.total).div(new U128(bnToBn(10).pow(bnToBn(tokenDecimals)))).toString();
     res.setHeader('content-type', 'text/plain');
 
     if (!!req.query.circulating) {
