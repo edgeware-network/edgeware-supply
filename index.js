@@ -2,7 +2,8 @@
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { bnToBn, stringToU8a } from '@polkadot/util';
-import { u128 } from '@polkadot/types';
+import { U128 } from '@polkadot/types';
+import { derive } from '@polkadot/api-derive';
 
 module.exports = async (req, res) => {
   const nodeUrl = 'wss://edgeware.jelliedowl.net';
@@ -23,29 +24,44 @@ module.exports = async (req, res) => {
   connected = true;
 
   const TREASURY_ACCOUNT = stringToU8a('modlpy/trsry'.padEnd(32, '\0'));
+  const tokenDecimals = 18; // Edgeware's decimal is 18
   //
   // get relevant chain data
   //
   try {
-    const [issuance, treasury, properties, block] = await Promise.all([
-      api.query.balances?.totalIssuance(),
-      api.derive.balances?.account(TREASURY_ACCOUNT),
+    const [issuance, era, properties, block] = await Promise.all([
+      api.query.balances.totalIssuance(),
+      api.query.staking.currentEra(),
       api.rpc.system.properties(),
     ]);
-    const tokenDecimals = properties.tokenDecimals.unwrap();
-    const issuanceStr = issuance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
-    const treasuryStr = treasury.freeBalance.div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
-    const circulatingStr = issuance.sub(treasury.freeBalance).div(bnToBn(10).pow(bnToBn(tokenDecimals))).toString(10);
+
+    const treasury = await api.derive.balances.account(TREASURY_ACCOUNT);
+    const derivedStaking = derive(api);
+    const stakers = await derivedStaking.staking.stakers();
+
+    const issuanceStr = issuance.div(new U128(bnToBn(10).pow(bnToBn(tokenDecimals)))).toString();
+    const stakedStr = stakers.total.div(new U128(bnToBn(10).pow(bnToBn(tokenDecimals)))).toString();
+    const treasuryStr = treasury.freeBalance.div(new U128(bnToBn(10).pow(bnToBn(tokenDecimals)))).toString();
+    const circulatingStr = issuance.sub(treasury.freeBalance).sub(stakers.total).div(new U128(bnToBn(10).pow(bnToBn(tokenDecimals)))).toString();
     res.setHeader('content-type', 'text/plain');
 
     if (!!req.query.circulating) {
       res.status(200).send(circulatingStr);
+    } else if (!!req.query.staked) {
+      res.status(200).send(stakedStr);
     } else if (!!req.query.treasury) {
       res.status(200).send(treasuryStr);
+    } else if (!!req.query.all) {
+      res.status(200).send(JSON.stringify({
+        'total_supply': issuanceStr,
+        'circulating_supply': circulatingStr,
+        'staked_supply': stakedStr,
+        'treasury_supply': treasuryStr,}));
     } else {
       res.status(200).send(issuanceStr);
     }
-  } catch (e) {
+  } catch (error) {
+    console.error('Error fetching supply data:', error);
     res.setHeader('content-type', 'text/plain');
     res.status(500).send('Error fetching Edgeware supply data');
   }
